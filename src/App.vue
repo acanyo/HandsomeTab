@@ -43,8 +43,8 @@
       <!-- 中心区域 -->
       <main class="main-content">
         <div class="center-container">
-          <Clock />
-          <SearchBar />
+          <Clock class="clock-widget" />
+          <SearchBar class="search-widget" />
         </div>
       </main>
 
@@ -178,12 +178,25 @@ onMounted(async () => {
   align-items: center;
   justify-content: center;
   padding: var(--spacing-unit);
+  min-height: 400px; /* 确保主内容区域有足够高度 */
 }
 
 .center-container {
-  max-width: 600px;
+  max-width: 800px;
   width: 100%;
-  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+}
+
+.clock-widget {
+  margin-bottom: 1rem;
+}
+
+.search-widget {
+  width: 100%;
+  max-width: 640px;
 }
 
 /* 底部区域 */

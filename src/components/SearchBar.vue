@@ -1,13 +1,13 @@
 <template>
   <div class="search-container">
-    <!-- 搜索输入框 -->
-    <div class="search-input-wrapper" :class="{ 'is-focused': isFocused }">
+    <div class="search-box" :class="{ 'is-focused': isFocused }">
       <!-- 搜索引擎选择器 -->
-      <div class="search-engine" @click="showEngineSelect = true">
+      <div class="engine-selector" @click="showEngineSelect = true">
         <img :src="currentEngine.icon" :alt="currentEngine.label" class="engine-icon">
         <el-icon class="arrow-icon"><ArrowDown /></el-icon>
       </div>
 
+      <!-- 搜索输入框 -->
       <el-input
         v-model="searchKeyword"
         class="search-input"
@@ -21,47 +21,24 @@
           <el-icon class="search-icon"><Search /></el-icon>
         </template>
       </el-input>
-
-      <!-- 搜索建议 -->
-      <transition name="slide-down">
-        <div v-if="showSuggestions && suggestions.length" class="suggestions">
-          <div
-            v-for="(item, index) in suggestions"
-            :key="index"
-            class="suggestion-item"
-            @click="selectSuggestion(item)"
-            @mouseenter="highlightIndex = index"
-            :class="{ 'is-active': highlightIndex === index }"
-          >
-            <el-icon><Search /></el-icon>
-            <span v-html="highlightKeyword(item)"></span>
-          </div>
-        </div>
-      </transition>
     </div>
 
-    <!-- 搜索引擎选择弹窗 -->
-    <el-dialog
-      v-model="showEngineSelect"
-      title="选择搜索引擎"
-      width="360px"
-      class="engine-dialog"
-      align-center
-      destroy-on-close
-    >
-      <div class="engine-list">
+    <!-- 搜索建议 -->
+    <transition name="fade-slide">
+      <div v-if="showSuggestions && suggestions.length" class="suggestions-panel">
         <div
-          v-for="engine in searchEngines"
-          :key="engine.value"
-          class="engine-item"
-          :class="{ 'is-active': currentEngine.value === engine.value }"
-          @click="selectEngine(engine)"
+          v-for="(item, index) in suggestions"
+          :key="index"
+          class="suggestion-item"
+          @click="selectSuggestion(item)"
+          @mouseenter="highlightIndex = index"
+          :class="{ 'is-active': highlightIndex === index }"
         >
-          <img :src="engine.icon" :alt="engine.label">
-          <span>{{ engine.label }}</span>
+          <el-icon><Search /></el-icon>
+          <span v-html="highlightKeyword(item)"></span>
         </div>
       </div>
-    </el-dialog>
+    </transition>
   </div>
 </template>
 
@@ -206,47 +183,40 @@ onKeyStroke(['ArrowDown', 'ArrowUp', 'Enter', 'Escape'], (e) => {
 .search-container {
   position: relative;
   width: 100%;
-  max-width: 680px;
-  margin: 2rem auto;
-  padding: 0 1rem;
 }
 
-.search-input-wrapper {
+.search-box {
   position: relative;
   display: flex;
   align-items: center;
-  background: rgba(255, 255, 255, 0.12);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border-radius: 16px;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.search-input-wrapper.is-focused {
   background: rgba(255, 255, 255, 0.15);
-  border-color: rgba(255, 255, 255, 0.2);
-  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.1),
-              0 4px 12px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
 }
 
-.search-engine {
-  position: absolute;
-  left: 16px;
-  top: 50%;
-  transform: translateY(-50%);
+.search-box.is-focused {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.engine-selector {
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 6px 8px;
-  border-radius: 8px;
+  padding: 8px 12px;
+  margin-left: 8px;
+  border-radius: 16px;
   cursor: pointer;
   transition: all 0.3s ease;
-  z-index: 2;
   background: rgba(255, 255, 255, 0.1);
 }
 
-.search-engine:hover {
+.engine-selector:hover {
   background: rgba(255, 255, 255, 0.2);
 }
 
@@ -254,7 +224,6 @@ onKeyStroke(['ArrowDown', 'ArrowUp', 'Enter', 'Escape'], (e) => {
   width: 20px;
   height: 20px;
   border-radius: 4px;
-  object-fit: cover;
 }
 
 .arrow-icon {
@@ -263,7 +232,7 @@ onKeyStroke(['ArrowDown', 'ArrowUp', 'Enter', 'Escape'], (e) => {
   transition: transform 0.3s ease;
 }
 
-.search-engine:hover .arrow-icon {
+.engine-selector:hover .arrow-icon {
   transform: rotate(180deg);
 }
 
@@ -274,47 +243,33 @@ onKeyStroke(['ArrowDown', 'ArrowUp', 'Enter', 'Escape'], (e) => {
 .search-input :deep(.el-input__wrapper) {
   background: transparent !important;
   box-shadow: none !important;
-  padding: 0 16px 0 88px;
-  height: 60px;
+  padding: 0 16px;
+  height: 56px;
 }
 
 .search-input :deep(.el-input__inner) {
   color: var(--text-primary);
   font-size: 1.1rem;
-  height: 100%;
+  padding-left: 8px;
 }
 
 .search-input :deep(.el-input__inner::placeholder) {
   color: var(--text-secondary);
 }
 
-.search-input :deep(.el-input__prefix) {
-  display: none;
-}
-
-.search-input :deep(.el-input__suffix) {
-  right: 16px;
-}
-
-.search-input :deep(.el-input__clear) {
-  color: var(--text-secondary);
-  font-size: 16px;
-}
-
-/* 搜索建议样式 */
-.suggestions {
+.suggestions-panel {
   position: absolute;
-  top: calc(100% + 8px);
+  top: calc(100% + 12px);
   left: 0;
   right: 0;
-  background: rgba(30, 30, 30, 0.95);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border-radius: 12px;
-  padding: 8px 0;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  background: rgba(28, 28, 28, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: 16px;
   border: 1px solid rgba(255, 255, 255, 0.1);
-  z-index: 10;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+  z-index: 100;
 }
 
 .suggestion-item {
@@ -322,9 +277,9 @@ onKeyStroke(['ArrowDown', 'ArrowUp', 'Enter', 'Escape'], (e) => {
   align-items: center;
   gap: 12px;
   padding: 12px 16px;
+  color: var(--text-secondary);
   cursor: pointer;
   transition: all 0.2s ease;
-  color: var(--text-secondary);
 }
 
 .suggestion-item:hover,
@@ -334,6 +289,7 @@ onKeyStroke(['ArrowDown', 'ArrowUp', 'Enter', 'Escape'], (e) => {
 }
 
 .suggestion-item .el-icon {
+  color: var(--text-secondary);
   font-size: 16px;
 }
 
@@ -342,116 +298,35 @@ onKeyStroke(['ArrowDown', 'ArrowUp', 'Enter', 'Escape'], (e) => {
   font-weight: 500;
 }
 
-/* 搜索引擎选择弹窗 */
-.engine-dialog :deep(.el-dialog) {
-  background: rgba(30, 30, 30, 0.95);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border-radius: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.engine-dialog :deep(.el-dialog__header) {
-  padding: 20px 24px;
-  margin-right: 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.engine-dialog :deep(.el-dialog__title) {
-  color: var(--text-primary);
-  font-size: 1.1rem;
-}
-
-.engine-dialog :deep(.el-dialog__headerbtn) {
-  top: 20px;
-  right: 20px;
-}
-
-.engine-dialog :deep(.el-dialog__close) {
-  color: var(--text-secondary);
-}
-
-.engine-list {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
-  padding: 16px;
-}
-
-.engine-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  padding: 16px;
-  border-radius: 12px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  color: var(--text-secondary);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.engine-item:hover {
-  background: rgba(255, 255, 255, 0.1);
-  border-color: rgba(255, 255, 255, 0.2);
-  color: var(--text-primary);
-}
-
-.engine-item.is-active {
-  background: var(--primary-color);
-  border-color: var(--primary-color);
-  color: white;
-}
-
-.engine-item img {
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
-}
-
-/* 动画 */
-.slide-down-enter-active,
-.slide-down-leave-active {
+/* 动画效果 */
+.fade-slide-enter-active,
+.fade-slide-leave-active {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.slide-down-enter-from,
-.slide-down-leave-to {
+.fade-slide-enter-from,
+.fade-slide-leave-to {
   opacity: 0;
   transform: translateY(-8px);
 }
 
 /* 移动端适配 */
 @media (max-width: 768px) {
-  .search-container {
-    margin: 1rem auto;
+  .search-box {
+    border-radius: 20px;
   }
 
-  .search-input-wrapper {
-    border-radius: 12px;
+  .engine-selector {
+    padding: 6px 10px;
+    margin-left: 6px;
   }
 
   .search-input :deep(.el-input__wrapper) {
-    height: 50px;
-    padding: 0 12px 0 76px;
-  }
-
-  .search-engine {
-    left: 12px;
-    padding: 4px 6px;
-  }
-
-  .engine-icon {
-    width: 18px;
-    height: 18px;
+    height: 48px;
   }
 
   .search-input :deep(.el-input__inner) {
     font-size: 1rem;
-  }
-
-  .engine-list {
-    grid-template-columns: repeat(2, 1fr);
   }
 }
 </style> 
