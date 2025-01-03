@@ -1,167 +1,200 @@
 <template>
-  <div class="quick-links">
-    <div v-for="(group, index) in store.quickLinks" :key="index" class="link-group">
-      <h3>{{ group.title }}</h3>
-      <div class="links-grid">
-        <div
-          v-for="link in group.links"
-          :key="link.url"
-          class="link-card"
-          @click="openLink(link.url)"
-        >
-          <img :src="link.icon" :alt="link.name">
-          <span>{{ link.name }}</span>
+  <div class="quick-links-container">
+    <div class="quick-links">
+      <div v-for="(group, index) in store.quickLinks" :key="index" class="link-group">
+        <div class="group-header">
+          <h3>{{ group.title }}</h3>
+          <div class="group-line"></div>
         </div>
-        <div class="link-card add-link" @click="showAddLinkDialog(group)">
-          <el-icon><Plus /></el-icon>
-          <span>添加</span>
+        <div class="links-grid">
+          <div
+            v-for="link in group.links"
+            :key="link.url"
+            class="link-card"
+            @click="openLink(link.url)"
+          >
+            <div class="link-icon">
+              <img 
+                :src="link.icon" 
+                :alt="link.name"
+                @error="handleIconError(link)"
+              >
+            </div>
+            <span class="link-name">{{ link.name }}</span>
+          </div>
         </div>
       </div>
     </div>
-
-    <el-dialog
-      v-model="dialogVisible"
-      title="添加快捷方式"
-      width="400px"
-    >
-      <el-form :model="newLink" label-width="80px">
-        <el-form-item label="名称">
-          <el-input v-model="newLink.name" />
-        </el-form-item>
-        <el-form-item label="网址">
-          <el-input v-model="newLink.url" />
-        </el-form-item>
-        <el-form-item label="图标">
-          <el-input v-model="newLink.icon" placeholder="输入图标URL或自动获取" />
-        </el-form-item>
-        <el-form-item label="分组">
-          <el-select v-model="newLink.group" style="width: 100%">
-            <el-option
-              v-for="group in store.quickLinks"
-              :key="group.title"
-              :label="group.title"
-              :value="group.title"
-            />
-          </el-select>
-        </el-form-item>
-      </el-form>
-      <template #footer>
-        <el-button @click="dialogVisible = false">取消</el-button>
-        <el-button type="primary" @click="addNewLink">确定</el-button>
-      </template>
-    </el-dialog>
   </div>
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue'
-import { Plus } from '@element-plus/icons-vue'
-import { ElMessage } from 'element-plus'
+import { ref } from 'vue'
 import { useLinksStore } from '../stores/links'
+import { getFavicon, DEFAULT_ICON } from '../config/links'
 
 const store = useLinksStore()
-
-const dialogVisible = ref(false)
-const currentGroup = ref(null)
-const newLink = reactive({
-  name: '',
-  url: '',
-  icon: '',
-  group: ''
-})
-
-const showAddLinkDialog = (group) => {
-  currentGroup = group
-  newLink.group = group.title
-  dialogVisible.value = true
-}
-
-const addNewLink = () => {
-  if (!newLink.name || !newLink.url) {
-    ElMessage.warning('请填写名称和网址')
-    return
-  }
-
-  if (!newLink.icon) {
-    const url = new URL(newLink.url)
-    newLink.icon = `${url.origin}/favicon.ico`
-  }
-
-  store.addLink(newLink.group, {
-    name: newLink.name,
-    url: newLink.url,
-    icon: newLink.icon
-  })
-
-  dialogVisible.value = false
-  ElMessage.success('添加成功')
-  
-  newLink.name = ''
-  newLink.url = ''
-  newLink.icon = ''
-}
 
 const openLink = (url) => {
   window.open(url, '_blank')
 }
+
+// 处理图标加载失败
+const handleIconError = async (link) => {
+  // 如果已经是默认图标就不处理
+  if (link.icon === DEFAULT_ICON) return
+  
+  // 尝试获取网站图标
+  link.icon = await getFavicon(link.url)
+}
 </script>
 
 <style scoped>
+.quick-links-container {
+  max-height: 45vh;
+  overflow-y: auto;
+  padding: 0 1.5rem;
+  margin-bottom: 2rem;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
 .quick-links {
-  margin-top: 3rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* 自定义滚动条 */
+.quick-links-container::-webkit-scrollbar {
+  width: 4px;
+}
+
+.quick-links-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.quick-links-container::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+}
+
+.quick-links-container::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.5);
 }
 
 .link-group {
   margin-bottom: 2rem;
 }
 
-.link-group h3 {
+.link-group:last-child {
   margin-bottom: 1rem;
-  color: #333;
-  font-size: 1.2rem;
+}
+
+.group-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1.2rem;
+}
+
+.group-header h3 {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 1.1rem;
+  font-weight: 500;
+  margin-right: 1rem;
+  white-space: nowrap;
+}
+
+.group-line {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(
+    to right,
+    rgba(255, 255, 255, 0.3),
+    transparent
+  );
 }
 
 .links-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+  gap: 0.8rem;
 }
 
 .link-card {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 1rem;
-  background: #f5f7fa;
-  border-radius: 8px;
+  padding: 0.8rem;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(8px);
+  border-radius: 12px;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .link-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-.link-card img {
-  width: 32px;
-  height: 32px;
-  margin-bottom: 0.5rem;
+.link-icon {
+  width: 36px;
+  height: 36px;
+  margin-bottom: 0.6rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.link-card span {
-  font-size: 0.9rem;
-  color: #606266;
+.link-icon img {
+  width: 100%;
+  height: 100%;
+  border-radius: 8px;
+  object-fit: cover;
+  transition: transform 0.3s ease;
 }
 
-.add-link {
-  border: 2px dashed #dcdfe6;
-  background: transparent;
+.link-card:hover .link-icon img {
+  transform: scale(1.05);
 }
 
-.add-link .el-icon {
-  font-size: 24px;
-  color: #909399;
-  margin-bottom: 0.5rem;
+.link-name {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.9);
+  text-align: center;
+  line-height: 1.2;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+@media (max-width: 768px) {
+  .quick-links-container {
+    padding: 0 1rem;
+  }
+
+  .links-grid {
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: 0.6rem;
+  }
+
+  .link-card {
+    padding: 0.6rem;
+  }
+
+  .link-icon {
+    width: 32px;
+    height: 32px;
+  }
+
+  .link-name {
+    font-size: 0.8rem;
+  }
 }
 </style> 

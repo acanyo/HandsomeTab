@@ -79,4 +79,77 @@ export const backgroundService = {
       return 'https://bing.com/th?id=OHR.JinliStreet_ZH-CN3020276206_UHD.jpg&rf=LaDigue_UHD.jpg&pid=hp&w=3840&h=2160&rs=1&c=4'
     }
   }
+}
+
+// 从本地存储获取链接配置
+export const getLinks = () => {
+  const links = localStorage.getItem('quickLinks')
+  return links ? JSON.parse(links) : null
+}
+
+// 保存链接配置到本地存储
+export const saveLinks = (links) => {
+  localStorage.setItem('quickLinks', JSON.stringify(links))
+}
+
+// 添加新链接
+export const addLink = (groupTitle, link) => {
+  const links = getLinks()
+  const group = links.find(g => g.title === groupTitle)
+  if (group) {
+    group.links.push(link)
+    saveLinks(links)
+  }
+  return links
+}
+
+// 删除链接
+export const removeLink = (groupTitle, url) => {
+  const links = getLinks()
+  const group = links.find(g => g.title === groupTitle)
+  if (group) {
+    group.links = group.links.filter(link => link.url !== url)
+    saveLinks(links)
+  }
+  return links
+}
+
+// 添加新分组
+export const addGroup = (groupTitle) => {
+  const links = getLinks()
+  links.push({
+    title: groupTitle,
+    links: []
+  })
+  saveLinks(links)
+  return links
+}
+
+// 删除分组
+export const removeGroup = (groupTitle) => {
+  const links = getLinks()
+  const newLinks = links.filter(group => group.title !== groupTitle)
+  saveLinks(newLinks)
+  return newLinks
+}
+
+// 更新链接信息
+export const updateLink = (groupTitle, oldUrl, newLink) => {
+  const links = getLinks()
+  const group = links.find(g => g.title === groupTitle)
+  if (group) {
+    const linkIndex = group.links.findIndex(link => link.url === oldUrl)
+    if (linkIndex !== -1) {
+      group.links[linkIndex] = newLink
+      saveLinks(links)
+    }
+  }
+  return links
+}
+
+// 重置为默认配置
+export const resetToDefault = () => {
+  const { defaultLinks } = require('../config/links')
+  saveLinks(defaultLinks)
+  return defaultLinks
 } 

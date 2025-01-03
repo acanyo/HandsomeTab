@@ -3,8 +3,7 @@ import { backgroundService } from '../services/backgroundService'
 
 export const useSettingsStore = defineStore('settings', {
   state: () => ({
-    background: 'https://bing.com/th?id=OHR.JinliStreet_ZH-CN3020276206_UHD.jpg&rf=LaDigue_UHD.jpg&pid=hp&w=3840&h=2160&rs=1&c=4',
-    backgroundMode: 'daily',
+    background: null,
     backgroundLoading: false,
     backgroundError: null,
     autoChangeBackground: true,
@@ -18,6 +17,33 @@ export const useSettingsStore = defineStore('settings', {
   }),
   
   actions: {
+    saveSettings() {
+      const settings = {
+        background: this.background,
+        autoChangeBackground: this.autoChangeBackground,
+        // ... 其他需要保存的设置
+      }
+      localStorage.setItem('settings', JSON.stringify(settings))
+    },
+
+    loadSettings() {
+      try {
+        const settings = JSON.parse(localStorage.getItem('settings'))
+        if (settings) {
+          this.background = settings.background
+          this.autoChangeBackground = settings.autoChangeBackground ?? true
+          // ... 加载其他设置
+        }
+        
+        // 如果开启了自动更换且没有背景，获取必应壁纸
+        if (this.autoChangeBackground && !this.background) {
+          this.fetchDailyBackground()
+        }
+      } catch (error) {
+        console.error('加载设置失败:', error)
+      }
+    },
+
     async setBackground(url, preload = true) {
       if (!url) return
 
@@ -30,14 +56,25 @@ export const useSettingsStore = defineStore('settings', {
         }
         
         this.background = url
-        localStorage.setItem('background', url)
+        this.saveSettings() // 保存设置
       } catch (error) {
         this.backgroundError = '背景图片加载失败'
         console.error('设置背景失败:', error)
-        this.background = 'https://www4.bing.com/th?id=OHR.PolarBearSwim_ZH-CN1000349057_1920x1080.jpg'
       } finally {
         this.backgroundLoading = false
       }
+    },
+
+    setAutoChange(value) {
+      this.autoChangeBackground = value
+      this.saveSettings() // 保存设置
+    },
+
+    async resetBackground() {
+      this.background = null
+      this.autoChangeBackground = true
+      this.saveSettings()
+      await this.fetchDailyBackground()
     },
 
     async fetchDailyBackground() {
@@ -48,7 +85,6 @@ export const useSettingsStore = defineStore('settings', {
         }
       } catch (error) {
         console.error('获取每日背景失败:', error)
-        await this.setBackground('https://www4.bing.com/th?id=OHR.PolarBearSwim_ZH-CN1000349057_1920x1080.jpg')
       }
     },
     
@@ -64,28 +100,6 @@ export const useSettingsStore = defineStore('settings', {
       // 更新 CSS 变量
       document.documentElement.style.setProperty('--blur-amount', `${this.theme.blur}px`)
       document.documentElement.style.setProperty('--overlay-opacity', this.theme.opacity)
-    },
-    
-    async loadSettings() {
-      const background = localStorage.getItem('background')
-      const backgroundMode = localStorage.getItem('backgroundMode')
-      const searchEngine = localStorage.getItem('searchEngine')
-      const theme = localStorage.getItem('theme')
-      
-      if (background) this.background = background
-      if (searchEngine) this.searchEngine = searchEngine
-      if (theme) this.theme = JSON.parse(theme)
-
-      if (backgroundMode) {
-        this.backgroundMode = backgroundMode
-      }
-      
-      // 如果没有背景或者是每日模式，获取最新壁纸
-      if (!background || this.backgroundMode === 'daily') {
-        await this.fetchDailyBackground()
-      } else {
-        this.background = background
-      }
     }
   }
 }) 
