@@ -25,14 +25,16 @@ export const weatherService = {
       // 格式化返回的数据
       return {
         city: weatherData.city,
-        temperature: `${currentData.temp || '--'}℃`,  // 使用实时温度
-        weather: currentData.weather || '--',
-        wind: currentData.wind || '--',
-        windspeed: `${currentData.windSpeed || '--'}`,
-        humidity: currentData.humidity || '--',
-        air: currentData.air || '--',
-        visibility: currentData.visibility || '--',
-        time: currentData.time || '--'
+        temperature: `${currentData.temp}°`,  // 当前温度
+        temp: weatherData.temp,               // 最高温度
+        tempn: weatherData.tempn,             // 最低温度
+        weather: currentData.weather,
+        wind: currentData.wind,
+        windspeed: currentData.windSpeed,
+        humidity: currentData.humidity,
+        air: currentData.air,
+        visibility: currentData.visibility,
+        time: currentData.time
       }
     } catch (error) {
       console.error('获取天气失败:', error)
