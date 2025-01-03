@@ -123,7 +123,7 @@
               一个简洁优雅的新标签页扩展，让你的浏览器更加美观实用。
             </p>
             <div class="links">
-              <el-link type="primary" href="https://github.com/yourusername/HandsomeTab" target="_blank">
+              <el-link type="primary" href="https://github.com/acanyo/HandsomeTab" target="_blank">
                 <el-icon><Link /></el-icon>
                 项目主页
               </el-link>
