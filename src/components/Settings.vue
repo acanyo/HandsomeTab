@@ -93,24 +93,6 @@
         </div>
       </el-tab-pane>
 
-      <!-- 常规设置 -->
-      <el-tab-pane label="常规">
-        <div class="setting-section">
-          <div class="setting-card setting-placeholder">
-            <el-empty description="更多设置开发中..." />
-          </div>
-        </div>
-      </el-tab-pane>
-
-      <!-- 快捷方式 -->
-      <el-tab-pane label="快捷方式">
-        <div class="setting-section">
-          <div class="setting-card setting-placeholder">
-            <el-empty description="快捷方式管理开发中..." />
-          </div>
-        </div>
-      </el-tab-pane>
-
       <!-- 关于 -->
       <el-tab-pane label="关于">
         <div class="setting-section">
@@ -441,71 +423,5 @@ const updateBackground = (url) => {
 
 .preview-actions .el-icon {
   font-size: 16px;
-}
-
-.background-preview {
-  width: 100%;
-  height: 200px;
-  border-radius: 8px;
-  overflow: hidden;
-  background: rgba(245, 247, 250, 0.6);
-  border: 1px solid rgba(235, 238, 245, 0.2);
-  backdrop-filter: blur(10px);
-}
-
-.preview-image,
-.preview-video {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  border-radius: 8px;
-}
-
-.setting-title {
-  font-size: 16px;
-  font-weight: 500;
-  color: #2c3e50;
-  margin-bottom: 12px;
-}
-
-.preview-actions {
-  margin-bottom: 12px;
-}
-
-.action-group {
-  display: flex;
-  gap: 8px;
-  flex-wrap: nowrap;
-}
-
-.action-group .el-button {
-  flex: 0 0 auto;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 8px 16px;
-  height: 32px;
-}
-
-.action-group .el-icon {
-  margin-right: 4px;
-}
-
-.background-preview {
-  width: 100%;
-  height: 200px;
-  border-radius: 8px;
-  overflow: hidden;
-  background: rgba(245, 247, 250, 0.6);
-  border: 1px solid rgba(235, 238, 245, 0.2);
-  backdrop-filter: blur(10px);
-}
-
-.preview-image,
-.preview-video {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  border-radius: 8px;
 }
 </style> 
