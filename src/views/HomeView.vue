@@ -5,9 +5,23 @@
       <transition name="fade">
         <div 
           v-show="!settingsStore.backgroundLoading"
-          class="bg-image" 
-          :style="backgroundStyle"
-        ></div>
+          class="bg-container" 
+        >
+          <video
+            v-if="isVideoBackground"
+            class="bg-video"
+            :src="settingsStore.background"
+            autoplay
+            loop
+            muted
+            playsinline
+          ></video>
+          <div
+            v-else
+            class="bg-image"
+            :style="backgroundStyle"
+          ></div>
+        </div>
       </transition>
       <div class="bg-overlay"></div>
     </div>
@@ -37,11 +51,18 @@
         <div class="center-container">
           <QuickLinks />
         </div>
+        <div class="quote-container">
+          <DailyQuote />
+        </div>
       </main>
 
-      <!-- 右上角工具栏 -->
-      <div class="top-tools">
+      <!-- 左上角天气 -->
+      <div class="top-left-tools">
         <Weather />
+      </div>
+
+      <!-- 右上角设置 -->
+      <div class="top-tools">
         <el-button 
           class="setting-btn" 
           circle
@@ -73,13 +94,19 @@ import SearchBar from '../components/SearchBar.vue'
 import QuickLinks from '../components/QuickLinks.vue'
 import Weather from '../components/Weather.vue'
 import Settings from '../components/Settings.vue'
+import DailyQuote from '../components/DailyQuote.vue'
 import { useSettingsStore } from '../stores/settings'
 
 const settingsStore = useSettingsStore()
 const showSettings = ref(false)
 
+const isVideoBackground = computed(() => {
+  const bg = settingsStore.background
+  return bg && (bg.endsWith('.mp4') || bg.endsWith('.webm'))
+})
+
 const backgroundStyle = computed(() => ({
-  backgroundImage: `url(${settingsStore.background})`,
+  backgroundImage: isVideoBackground.value ? 'none' : `url(${settingsStore.background})`,
   backgroundSize: 'cover',
   backgroundPosition: 'center',
   backgroundRepeat: 'no-repeat'
@@ -111,13 +138,30 @@ onMounted(() => {
   z-index: -1;
 }
 
-.bg-image {
+.bg-container {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
   transition: opacity 0.5s ease;
+}
+
+.bg-video {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.bg-image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
 }
 
 .bg-overlay {
@@ -174,12 +218,16 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding-top: 2rem;
+  padding: 2rem 1rem;
+  margin-top: 2rem;
 }
 
 .center-container {
   text-align: center;
   width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 1rem;
 }
 
 .clock-widget {
@@ -276,21 +324,42 @@ onMounted(() => {
     padding-top: 1rem;
   }
 
-  :deep(.clock .time) {
-    font-size: 3.5rem;
+  .main-content {
+    padding: 1rem;
+    margin-top: 1rem;
   }
 
-  :deep(.clock .date) {
-    font-size: 0.9rem;
-  }
-
-  .top-widgets {
-    max-width: 92%;
+  .center-container {
+    padding: 0 0.5rem;
   }
 
   .top-tools {
     top: 0.5rem;
     right: 0.5rem;
+  }
+
+  .top-left-tools {
+    top: 0.5rem;
+    left: 0.5rem;
+  }
+
+  :deep(.links-grid) {
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: 0.8rem;
+  }
+
+  :deep(.link-card) {
+    padding: 0.8rem;
+  }
+
+  :deep(.link-icon) {
+    width: 32px;
+    height: 32px;
+    margin-bottom: 0.6rem;
+  }
+
+  :deep(.link-name) {
+    font-size: 0.8rem;
   }
 }
 
@@ -303,5 +372,81 @@ onMounted(() => {
   align-items: center;
   gap: 1rem;
   z-index: 100;
+}
+
+/* 添加左侧天气组件容器 */
+.top-left-tools {
+  position: fixed;
+  top: 1rem;
+  left: 1rem;
+  z-index: 100;
+}
+
+/* 优化内容布局 */
+.content-layer {
+  position: relative;
+  z-index: 1;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  padding-top: 2rem;
+}
+
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem 1rem;
+  margin-top: 2rem;
+}
+
+.center-container {
+  text-align: center;
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+/* 优化快捷链接区域 */
+:deep(.quick-links-container) {
+  max-height: 60vh;
+  padding: 0;
+}
+
+:deep(.links-grid) {
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 1rem;
+}
+
+:deep(.link-card) {
+  padding: 1rem;
+}
+
+:deep(.link-icon) {
+  width: 40px;
+  height: 40px;
+  margin-bottom: 0.8rem;
+}
+
+:deep(.link-name) {
+  font-size: 0.9rem;
+}
+
+/* 修改每日一句容器样式 */
+.quote-container {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  z-index: 10;
+}
+
+@media (max-width: 768px) {
+  .quote-container {
+    bottom: 0;
+  }
 }
 </style> 

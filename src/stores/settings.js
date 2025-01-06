@@ -4,9 +4,9 @@ import { backgroundService } from '../services/backgroundService'
 export const useSettingsStore = defineStore('settings', {
   state: () => ({
     background: null,
+    backgroundPoster: null,
     backgroundLoading: false,
     backgroundError: null,
-    autoChangeBackground: true,
     searchEngine: 'google',
     showWeather: true,
     theme: {
@@ -20,7 +20,7 @@ export const useSettingsStore = defineStore('settings', {
     saveSettings() {
       const settings = {
         background: this.background,
-        autoChangeBackground: this.autoChangeBackground,
+        backgroundPoster: this.backgroundPoster,
         // ... 其他需要保存的设置
       }
       localStorage.setItem('settings', JSON.stringify(settings))
@@ -31,12 +31,12 @@ export const useSettingsStore = defineStore('settings', {
         const settings = JSON.parse(localStorage.getItem('settings'))
         if (settings) {
           this.background = settings.background
-          this.autoChangeBackground = settings.autoChangeBackground ?? true
+          this.backgroundPoster = settings.backgroundPoster
           // ... 加载其他设置
         }
         
-        // 如果开启了自动更换且没有背景，获取必应壁纸
-        if (this.autoChangeBackground && !this.background) {
+        // 如果没有背景,获取必应壁纸
+        if (!this.background) {
           this.fetchDailyBackground()
         }
       } catch (error) {
@@ -44,35 +44,31 @@ export const useSettingsStore = defineStore('settings', {
       }
     },
 
-    async setBackground(url, preload = true) {
+    async setBackground(url, poster = null, preload = true) {
       if (!url) return
 
       try {
         this.backgroundLoading = true
         this.backgroundError = null
         
-        if (preload) {
+        // 只对图片URL进行预加载
+        if (preload && !url.endsWith('.mp4')) {
           await backgroundService.preloadImage(url)
         }
         
         this.background = url
+        this.backgroundPoster = poster
         this.saveSettings() // 保存设置
       } catch (error) {
-        this.backgroundError = '背景图片加载失败'
+        this.backgroundError = '背景加载失败'
         console.error('设置背景失败:', error)
       } finally {
         this.backgroundLoading = false
       }
     },
 
-    setAutoChange(value) {
-      this.autoChangeBackground = value
-      this.saveSettings() // 保存设置
-    },
-
     async resetBackground() {
       this.background = null
-      this.autoChangeBackground = true
       this.saveSettings()
       await this.fetchDailyBackground()
     },

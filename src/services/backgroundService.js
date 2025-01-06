@@ -57,6 +57,11 @@ export const backgroundService = {
 
   // 预加载图片
   preloadImage(url) {
+    // 如果是视频，直接返回
+    if (url.endsWith('.mp4')) {
+      return Promise.resolve(url)
+    }
+
     return new Promise((resolve, reject) => {
       const img = new Image()
       img.onload = () => resolve(url)
