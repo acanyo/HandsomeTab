@@ -25,6 +25,11 @@ export default defineConfig({
         target: 'https://api.juejin.cn',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api\/juejin/, '')
+      },
+      '/api/hotday': {
+        target: 'https://www.hotday.uk',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/hotday/, '')
       }
     }
   },
