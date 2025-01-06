@@ -6,10 +6,25 @@ export default defineConfig({
   plugins: [vue()],
   server: {
     proxy: {
-      '/bing-api': {
-        target: 'https://cn.bing.com',
+      '/api/linuxdo': {
+        target: 'https://linux.do',
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/bing-api/, '')
+        rewrite: (path) => path.replace(/^\/api\/linuxdo/, '')
+      },
+      '/api/zhihu': {
+        target: 'https://api.zhihu.com',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/zhihu/, '')
+      },
+      '/api/baidu': {
+        target: 'https://top.baidu.com',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/baidu/, '')
+      },
+      '/api/juejin': {
+        target: 'https://api.juejin.cn',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/juejin/, '')
       }
     }
   },

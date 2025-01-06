@@ -54,6 +54,7 @@
         <div class="quote-container">
           <DailyQuote />
         </div>
+        <HotSearch class="hot-search" />
       </main>
 
       <!-- 左上角天气 -->
@@ -95,6 +96,7 @@ import QuickLinks from '../components/QuickLinks.vue'
 import Weather from '../components/Weather.vue'
 import Settings from '../components/Settings.vue'
 import DailyQuote from '../components/DailyQuote.vue'
+import HotSearch from '../components/HotSearch.vue'
 import { useSettingsStore } from '../stores/settings'
 
 const settingsStore = useSettingsStore()
@@ -448,5 +450,11 @@ onMounted(() => {
   .quote-container {
     bottom: 0;
   }
+}
+
+.hot-search {
+  position: fixed;
+  right: 20px;
+  top: 80px;
 }
 </style> 
