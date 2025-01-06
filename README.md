@@ -109,7 +109,7 @@ Copyright (c) 2024 Handsome. All rights reserved.
 ## 联系方式
 
 - 作者：Handsome
-- GitHub: [HandsomeTab](https://github.com/somehand/HandsomeTab)
+- GitHub: [HandsomeTab](https://github.com/acanyo/HandsomeTab)
 - 邮箱：30819792@qq.com
 - QQ：30819792
 - 官网：[Handsome](https://www.lik.cc)

@@ -275,12 +275,14 @@ onKeyStroke(['ArrowDown', 'ArrowUp', 'Enter', 'Escape'], (e) => {
 }
 
 .engine-label {
+  color: #000000;
+  font-size: 14px;
   display: none;  /* 隐藏搜索引擎文字标签 */
 }
 
 .arrow-icon {
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.7);
+  color: #000000;
   transition: transform 0.3s ease;
 }
 
@@ -301,13 +303,13 @@ onKeyStroke(['ArrowDown', 'ArrowUp', 'Enter', 'Escape'], (e) => {
 }
 
 .search-input :deep(.el-input__inner) {
-  color: rgba(255, 255, 255, 0.9);
+  color: #000000;
   font-size: 14px;
   font-weight: normal;
 }
 
 .search-input :deep(.el-input__inner::placeholder) {
-  color: rgba(255, 255, 255, 0.5);
+  color: rgba(0, 0, 0, 0.7);
   font-size: 14px;
 }
 
@@ -316,7 +318,7 @@ onKeyStroke(['ArrowDown', 'ArrowUp', 'Enter', 'Escape'], (e) => {
 }
 
 .search-input :deep(.el-input__prefix-inner) {
-  color: rgba(255, 255, 255, 0.7);
+  color: #000000;
 }
 
 .suggestions-panel {
@@ -370,16 +372,18 @@ onKeyStroke(['ArrowDown', 'ArrowUp', 'Enter', 'Escape'], (e) => {
 .engine-dialog :deep(.el-dialog__header) {
   padding: 16px;
   margin: 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  background-color: #ffffff;
 }
 
 .engine-dialog :deep(.el-dialog__title) {
   font-size: 16px;
-  color: rgba(255, 255, 255, 0.9);
+  color: #000000;
 }
 
 .engine-dialog :deep(.el-dialog__body) {
   padding: 16px;
+  background-color: #ffffff;
 }
 
 .engine-list {
@@ -399,7 +403,7 @@ onKeyStroke(['ArrowDown', 'ArrowUp', 'Enter', 'Escape'], (e) => {
 }
 
 .engine-item:hover {
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(0, 0, 0, 0.08);
 }
 
 .engine-item.is-active {
@@ -409,7 +413,7 @@ onKeyStroke(['ArrowDown', 'ArrowUp', 'Enter', 'Escape'], (e) => {
 .engine-name {
   flex: 1;
   font-size: 14px;
-  color: rgba(255, 255, 255, 0.9);
+  color: #000000;
 }
 
 .check-icon {
