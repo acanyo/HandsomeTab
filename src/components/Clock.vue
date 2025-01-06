@@ -16,14 +16,18 @@ const updateTime = () => {
   const now = new Date()
   time.value = now.toLocaleTimeString('zh-CN', { 
     hour: '2-digit', 
-    minute: '2-digit'
+    minute: '2-digit',
+    hour12: false
   })
-  date.value = now.toLocaleDateString('zh-CN', {
+  
+  // 格式化日期
+  const dateStr = now.toLocaleDateString('zh-CN', {
     year: 'numeric',
-    month: 'long',
+    month: 'numeric',
     day: 'numeric',
     weekday: 'long'
   })
+  date.value = dateStr.replace(/年|月/g, '-').replace('日', '')
 }
 
 onMounted(() => {
@@ -39,18 +43,34 @@ onUnmounted(() => {
 <style scoped>
 .clock {
   text-align: center;
-  color: white;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-  margin-bottom: 2rem;
+  color: rgba(255, 255, 255, 0.95);
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  user-select: none;
 }
 
 .time {
-  font-size: 6rem;
-  font-weight: 300;
+  font-size: 5rem;
+  font-weight: 200;
+  letter-spacing: 2px;
+  line-height: 1.2;
+  margin-bottom: 0.5rem;
 }
 
 .date {
-  font-size: 1.5rem;
-  opacity: 0.8;
+  font-size: 1.2rem;
+  font-weight: 300;
+  opacity: 0.9;
+  letter-spacing: 1px;
+}
+
+/* 移动端适配 */
+@media (max-width: 768px) {
+  .time {
+    font-size: 4rem;
+  }
+
+  .date {
+    font-size: 1rem;
+  }
 }
 </style> 

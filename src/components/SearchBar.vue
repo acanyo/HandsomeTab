@@ -4,6 +4,7 @@
       <!-- 搜索引擎选择器 -->
       <div class="engine-selector" @click="showEngineSelect = true">
         <img :src="currentEngine.icon" :alt="currentEngine.label" class="engine-icon">
+        <span class="engine-label">{{ currentEngine.label }}</span>
         <el-icon class="arrow-icon"><ArrowDown /></el-icon>
       </div>
 
@@ -39,12 +40,36 @@
         </div>
       </div>
     </transition>
+
+    <!-- 搜索引擎选择对话框 -->
+    <el-dialog
+      v-model="showEngineSelect"
+      title="选择搜索引擎"
+      width="300px"
+      class="engine-dialog"
+      :show-close="true"
+      :close-on-click-modal="true"
+    >
+      <div class="engine-list">
+        <div
+          v-for="engine in searchEngines"
+          :key="engine.value"
+          class="engine-item"
+          :class="{ 'is-active': engine.value === currentEngine.value }"
+          @click="selectEngine(engine)"
+        >
+          <img :src="engine.icon" :alt="engine.label" class="engine-icon">
+          <span class="engine-name">{{ engine.label }}</span>
+          <el-icon v-if="engine.value === currentEngine.value" class="check-icon"><Check /></el-icon>
+        </div>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
 <script setup>
 import { ref, computed, watch } from 'vue'
-import { Search, ArrowDown } from '@element-plus/icons-vue'
+import { Search, ArrowDown, Check } from '@element-plus/icons-vue'
 import { useSettingsStore } from '../stores/settings'
 import { onKeyStroke } from '@vueuse/core'
 import debounce from 'lodash/debounce'
@@ -59,13 +84,6 @@ const highlightIndex = ref(-1)
 
 const searchEngines = [
   {
-    label: 'Google',
-    value: 'google',
-    icon: 'https://www.google.com/favicon.ico',
-    searchUrl: 'https://www.google.com/search?q=',
-    suggestUrl: 'https://suggestqueries.google.com/complete/search?client=chrome&q='
-  },
-  {
     label: '百度',
     value: 'baidu',
     icon: 'https://www.baidu.com/favicon.ico',
@@ -73,11 +91,39 @@ const searchEngines = [
     suggestUrl: 'https://suggestion.baidu.com/su?wd='
   },
   {
+    label: 'Google',
+    value: 'google',
+    icon: 'https://www.google.com/favicon.ico',
+    searchUrl: 'https://www.google.com/search?q=',
+    suggestUrl: 'https://suggestqueries.google.com/complete/search?client=chrome&q='
+  },
+  {
     label: '必应',
     value: 'bing',
     icon: 'https://www.bing.com/favicon.ico',
     searchUrl: 'https://www.bing.com/search?q=',
     suggestUrl: 'https://api.bing.com/qsonhs.aspx?q='
+  },
+  {
+    label: '搜狗',
+    value: 'sogou',
+    icon: 'https://www.sogou.com/favicon.ico',
+    searchUrl: 'https://www.sogou.com/web?query=',
+    suggestUrl: 'https://www.sogou.com/suggnew/ajajjson?key='
+  },
+  {
+    label: '360',
+    value: '360',
+    icon: 'https://www.so.com/favicon.ico',
+    searchUrl: 'https://www.so.com/s?q=',
+    suggestUrl: 'https://sug.so.360.cn/suggest?word='
+  },
+  {
+    label: 'DuckDuckGo',
+    value: 'duckduckgo',
+    icon: 'https://duckduckgo.com/favicon.ico',
+    searchUrl: 'https://duckduckgo.com/?q=',
+    suggestUrl: 'https://duckduckgo.com/ac/?q='
   }
 ]
 
@@ -183,41 +229,43 @@ onKeyStroke(['ArrowDown', 'ArrowUp', 'Enter', 'Escape'], (e) => {
 .search-container {
   position: relative;
   width: 100%;
+  max-width: 650px;
+  margin: 0 auto;
 }
 
 .search-box {
   position: relative;
   display: flex;
   align-items: center;
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-radius: 24px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: all 0.3s ease;
   overflow: hidden;
+  height: 46px;
 }
 
 .search-box.is-focused {
-  background: rgba(255, 255, 255, 0.2);
-  border-color: rgba(255, 255, 255, 0.3);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  background: rgba(255, 255, 255, 0.16);
+  border-color: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .engine-selector {
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 8px 12px;
-  margin-left: 8px;
-  border-radius: 16px;
+  padding: 0 12px;
+  height: 100%;
   cursor: pointer;
   transition: all 0.3s ease;
-  background: rgba(255, 255, 255, 0.1);
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .engine-selector:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.08);
 }
 
 .engine-icon {
@@ -226,9 +274,13 @@ onKeyStroke(['ArrowDown', 'ArrowUp', 'Enter', 'Escape'], (e) => {
   border-radius: 4px;
 }
 
+.engine-label {
+  display: none;  /* 隐藏搜索引擎文字标签 */
+}
+
 .arrow-icon {
   font-size: 12px;
-  color: var(--text-secondary);
+  color: rgba(255, 255, 255, 0.7);
   transition: transform 0.3s ease;
 }
 
@@ -243,31 +295,41 @@ onKeyStroke(['ArrowDown', 'ArrowUp', 'Enter', 'Escape'], (e) => {
 .search-input :deep(.el-input__wrapper) {
   background: transparent !important;
   box-shadow: none !important;
-  padding: 0 16px;
-  height: 56px;
+  padding: 0 12px;
+  height: 46px;
+  border: none;
 }
 
 .search-input :deep(.el-input__inner) {
-  color: var(--text-primary);
-  font-size: 1.1rem;
-  padding-left: 8px;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 14px;
+  font-weight: normal;
 }
 
 .search-input :deep(.el-input__inner::placeholder) {
-  color: var(--text-secondary);
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 14px;
+}
+
+.search-input :deep(.el-input__prefix) {
+  margin-right: 8px;
+}
+
+.search-input :deep(.el-input__prefix-inner) {
+  color: rgba(255, 255, 255, 0.7);
 }
 
 .suggestions-panel {
   position: absolute;
-  top: calc(100% + 12px);
+  top: calc(100% + 8px);
   left: 0;
   right: 0;
-  background: rgba(28, 28, 28, 0.95);
+  background: rgba(30, 30, 30, 0.95);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border-radius: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
   overflow: hidden;
   z-index: 100;
 }
@@ -275,58 +337,107 @@ onKeyStroke(['ArrowDown', 'ArrowUp', 'Enter', 'Escape'], (e) => {
 .suggestion-item {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 12px 16px;
-  color: var(--text-secondary);
+  gap: 10px;
+  padding: 10px 16px;
+  color: rgba(255, 255, 255, 0.7);
   cursor: pointer;
   transition: all 0.2s ease;
+  font-size: 14px;
 }
 
 .suggestion-item:hover,
 .suggestion-item.is-active {
-  background: rgba(255, 255, 255, 0.1);
-  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.9);
 }
 
 .suggestion-item .el-icon {
-  color: var(--text-secondary);
-  font-size: 16px;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 14px;
 }
 
 .highlight {
-  color: var(--primary-color);
+  color: #409EFF;
   font-weight: 500;
 }
 
-/* 动画效果 */
-.fade-slide-enter-active,
-.fade-slide-leave-active {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+/* 搜索引擎选择对话框样式 */
+.engine-dialog {
+  border-radius: 12px;
+  overflow: hidden;
 }
 
-.fade-slide-enter-from,
-.fade-slide-leave-to {
-  opacity: 0;
-  transform: translateY(-8px);
+.engine-dialog :deep(.el-dialog__header) {
+  padding: 16px;
+  margin: 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.engine-dialog :deep(.el-dialog__title) {
+  font-size: 16px;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.engine-dialog :deep(.el-dialog__body) {
+  padding: 16px;
+}
+
+.engine-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.engine-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.engine-item:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.engine-item.is-active {
+  background: rgba(64, 158, 255, 0.1);
+}
+
+.engine-name {
+  flex: 1;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.check-icon {
+  color: #409EFF;
+  font-size: 14px;
 }
 
 /* 移动端适配 */
 @media (max-width: 768px) {
+  .search-container {
+    max-width: 92%;
+  }
+
   .search-box {
-    border-radius: 20px;
+    height: 42px;
   }
 
   .engine-selector {
-    padding: 6px 10px;
-    margin-left: 6px;
+    padding: 0 10px;
   }
 
   .search-input :deep(.el-input__wrapper) {
-    height: 48px;
+    height: 42px;
   }
 
-  .search-input :deep(.el-input__inner) {
-    font-size: 1rem;
+  .engine-icon {
+    width: 18px;
+    height: 18px;
   }
 }
 </style> 

@@ -25,17 +25,9 @@
       <!-- 顶部区域 -->
       <header class="header">
         <div class="header-content">
-          <div class="left-section">
-            <Weather />
-          </div>
-          <div class="right-section">
-            <el-button 
-              class="setting-btn" 
-              circle
-              @click="showSettings = true"
-            >
-              <el-icon><Setting /></el-icon>
-            </el-button>
+          <div class="top-widgets">
+            <Clock class="clock-widget" />
+            <SearchBar class="search-widget" />
           </div>
         </div>
       </header>
@@ -43,17 +35,21 @@
       <!-- 中心区域 -->
       <main class="main-content">
         <div class="center-container">
-          <Clock class="clock-widget" />
-          <SearchBar class="search-widget" />
+          <QuickLinks />
         </div>
       </main>
 
-      <!-- 底部区域 -->
-      <footer class="footer">
-        <div class="footer-content">
-          <QuickLinks />
-        </div>
-      </footer>
+      <!-- 右上角工具栏 -->
+      <div class="top-tools">
+        <Weather />
+        <el-button 
+          class="setting-btn" 
+          circle
+          @click="showSettings = true"
+        >
+          <el-icon><Setting /></el-icon>
+        </el-button>
+      </div>
     </div>
 
     <!-- 设置面板 -->
@@ -139,6 +135,7 @@ onMounted(() => {
   height: 100vh;
   display: flex;
   flex-direction: column;
+  padding-top: 2rem;
 }
 
 .loading-layer {
@@ -160,13 +157,14 @@ onMounted(() => {
 }
 
 .header {
-  padding: 1rem;
+  padding: 0;
 }
 
 .header-content {
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
   align-items: center;
+  gap: 1rem;
   max-width: 1200px;
   margin: 0 auto;
 }
@@ -174,20 +172,23 @@ onMounted(() => {
 .main-content {
   flex: 1;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
+  padding-top: 2rem;
 }
 
 .center-container {
   text-align: center;
+  width: 100%;
 }
 
 .clock-widget {
-  margin-bottom: 2rem;
+  margin-bottom: 0;
 }
 
 .footer {
   padding: 1rem;
+  margin-top: auto;
 }
 
 .footer-content {
@@ -228,5 +229,79 @@ onMounted(() => {
 
 .setting-btn:hover {
   background: rgba(255, 255, 255, 0.3);
+}
+
+/* 修改时钟样式 */
+:deep(.clock) {
+  margin-bottom: 0;
+}
+
+:deep(.clock .time) {
+  font-size: 4.5rem;
+  font-weight: 200;
+  letter-spacing: 2px;
+  margin-bottom: 0.25rem;
+}
+
+:deep(.clock .date) {
+  font-size: 1rem;
+  opacity: 0.9;
+  font-weight: 300;
+  margin-bottom: 0.5rem;
+}
+
+/* 添加新的布局容器 */
+.top-widgets {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  max-width: 650px;
+  margin: 0 auto;
+}
+
+/* 移除天气组件的背景和边框 */
+:deep(.weather-widget) {
+  background: transparent;
+  border: none;
+  backdrop-filter: none;
+  padding: 0;
+  min-width: auto;
+}
+
+/* 移动端适配 */
+@media (max-width: 768px) {
+  .content-layer {
+    padding-top: 1rem;
+  }
+
+  :deep(.clock .time) {
+    font-size: 3.5rem;
+  }
+
+  :deep(.clock .date) {
+    font-size: 0.9rem;
+  }
+
+  .top-widgets {
+    max-width: 92%;
+  }
+
+  .top-tools {
+    top: 0.5rem;
+    right: 0.5rem;
+  }
+}
+
+/* 添加右上角工具栏样式 */
+.top-tools {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  z-index: 100;
 }
 </style> 
