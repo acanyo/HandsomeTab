@@ -126,7 +126,7 @@
 
 <script setup>
 import { ref } from 'vue'
-import { Refresh, Link, Upload, Picture, Delete, VideoPlay } from '@element-plus/icons-vue'
+import { Link, Upload, Picture, Delete, VideoPlay } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import { useSettingsStore } from '../stores/settings'
 import { backgroundService } from '../services/backgroundService'
@@ -186,11 +186,9 @@ const handleRandomVideo = () => {
       return
     }
 
-    // 获取当前壁纸的索引
     const currentIndex = videos.findIndex(v => v.url === settingsStore.background)
     let randomIndex
 
-    // 确保不会随机到当前壁纸
     do {
       randomIndex = Math.floor(Math.random() * videos.length)
     } while (randomIndex === currentIndex && videos.length > 1)
@@ -201,7 +199,6 @@ const handleRandomVideo = () => {
       return
     }
 
-    // 设置背景时同时设置预览图
     settingsStore.setBackground(randomVideo.url, randomVideo.poster, false)
       .then(() => {
         ElMessage.success('动态壁纸更换成功')
@@ -210,7 +207,6 @@ const handleRandomVideo = () => {
         ElMessage.error('动态壁纸切换失败')
       })
   } catch (error) {
-    console.error('随机切换动态壁纸失败:', error)
     ElMessage.error('动态壁纸切换失败')
   }
 }
@@ -219,13 +215,6 @@ const handleRandomVideo = () => {
 const handleResetBackground = () => {
   settingsStore.resetBackground()
   ElMessage.success('背景已重置')
-}
-
-// 更新背景
-const updateBackground = (url) => {
-  settingsStore.setBackground(url)
-  settingsStore.setAutoChange(false)
-  ElMessage.success('背景设置成功')
 }
 </script>
 
@@ -256,6 +245,12 @@ const updateBackground = (url) => {
 
 .setting-label {
   margin-bottom: 12px;
+  font-size: 16px;
+  font-weight: 500;
+  color: #2c3e50;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
 .preview-actions {
@@ -307,12 +302,6 @@ const updateBackground = (url) => {
   align-items: center;
   justify-content: space-between;
   padding: 0.5rem 0;
-}
-
-.setting-label {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
 }
 
 .label-text {
@@ -370,55 +359,18 @@ const updateBackground = (url) => {
   justify-content: center;
 }
 
+.setting-title {
+  font-size: 16px;
+  font-weight: 500;
+  color: #2c3e50;
+  margin-bottom: 12px;
+}
+
 .preview-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 12px;
-}
-
-.setting-label {
-  font-size: 16px;
-  font-weight: 500;
-  color: #2c3e50;
-}
-
-.preview-actions {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-}
-
-.action-btn {
-  background-color: #409EFF;
-  color: white;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.action-btn:hover {
-  background-color: #66b1ff;
-}
-
-.reset-btn {
-  background-color: rgba(255, 255, 255, 0.9);
-  color: #F56C6C;
-  border: 1px solid rgba(245, 108, 108, 0.2);
-  padding: 8px 16px;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.reset-btn:hover {
-  background-color: #FEF0F0;
-  color: #F56C6C;
-  border-color: #F56C6C;
 }
 
 .preview-actions .el-icon {
