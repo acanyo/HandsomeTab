@@ -3,19 +3,25 @@
 // API端点配置
 const API_ENDPOINTS = {
   linuxdo: {
-    url: '/api/linuxdo/top.json',
+    url: '/api/linuxdo/top.json?period=daily',
     transform: (data) => {
-      if (!data?.topic_list?.topics) return []
-      return data.topic_list.topics
-        .map(topic => ({
-          title: topic.title,
-          url: `https://linux.do/t/topic/${topic.id}`,
-          views: topic.views,
-          likes: topic.like_count,
-          replies: topic.posts_count - 1
-        }))
-        .sort((a, b) => b.views - a.views)
-        .slice(0, 30)
+      try {
+        if (!data?.topic_list?.topics) return []
+        return data.topic_list.topics
+          .filter(topic => !topic.pinned && !topic.closed)  // 过滤掉置顶和关闭的帖子
+          .map(topic => ({
+            title: topic.title,
+            url: `https://linux.do/t/topic/${topic.id}`,
+            views: topic.views,
+            likes: topic.like_count,
+            replies: topic.posts_count - 1
+          }))
+          .sort((a, b) => b.views - a.views)  // 按浏览量排序
+          .slice(0, 30)  // 取前30条
+      } catch (error) {
+        console.error('解析 LinuxDO 数据失败:', error)
+        return []
+      }
     }
   },
   zhihu: {
