@@ -1,99 +1,131 @@
 // 热搜服务
 
-// XML Feed URL
-const FEED_URL = '/api/hotday/feed'
+// API端点配置
+const API_ENDPOINTS = {
+  linuxdo: {
+    url: '/api/linuxdo/top.json',
+    transform: (data) => {
+      if (!data?.topic_list?.topics) return []
+      return data.topic_list.topics
+        .map(topic => ({
+          title: topic.title,
+          url: `https://linux.do/t/topic/${topic.id}`,
+          views: topic.views,
+          likes: topic.like_count,
+          replies: topic.posts_count - 1
+        }))
+        .sort((a, b) => b.views - a.views)
+        .slice(0, 30)
+    }
+  },
+  zhihu: {
+    url: 'https://api.cenguigui.cn/api/juhe/hotlist.php?type=zhihu',
+    transform: (data) => {
+      if (!data?.success || !data?.data) return []
+      return data.data
+        .map(item => ({
+          title: item.title,
+          url: item.url,
+          hot: item.hot
+        }))
+        .slice(0, 30)
+    }
+  },
+  baidu: {
+    url: 'https://api.cenguigui.cn/api/juhe/hotlist.php?type=baidu',
+    transform: (data) => {
+      if (!data?.success || !data?.data) return []
+      return data.data
+        .map(item => ({
+          title: item.title,
+          url: item.url,
+          hot: item.hot
+        }))
+        .slice(0, 30)
+    }
+  },
+  douyin: {
+    url: 'https://api.cenguigui.cn/api/juhe/hotlist.php?type=douyin',
+    transform: (data) => {
+      if (!data?.success || !data?.data) return []
+      return data.data
+        .map(item => ({
+          title: item.title,
+          url: item.url,
+          hot: item.hot
+        }))
+        .slice(0, 30)
+    }
+  },
+  bilibili: {
+    url: 'https://api.cenguigui.cn/api/juhe/hotlist.php?type=bilihot',
+    transform: (data) => {
+      if (!data?.success || !data?.data) return []
+      return data.data
+        .map(item => ({
+          title: item.title,
+          url: item.url,
+          hot: item.hot
+        }))
+        .slice(0, 30)
+    }
+  }
+}
 
 export const hotSearchService = {
-  // 解析XML数据
-  parseXML(xmlText) {
-    const parser = new DOMParser()
-    const xmlDoc = parser.parseFromString(xmlText, 'text/xml')
-    return xmlDoc
-  },
+  // 获取单个来源的热搜数据
+  async fetchSourceData(source) {
+    try {
+      const endpoint = API_ENDPOINTS[source]
+      if (!endpoint) return []
 
-  // 从XML中提取数据
-  extractItems(xmlDoc) {
-    const items = xmlDoc.getElementsByTagName('item')
-    return Array.from(items).map(item => {
-      const title = item.getElementsByTagName('title')[0]?.textContent || ''
-      const link = item.getElementsByTagName('link')[0]?.textContent || ''
-      const pubDate = item.getElementsByTagName('pubDate')[0]?.textContent || ''
-      
-      return {
-        title,
-        url: link,
-        date: new Date(pubDate)
+      const response = await fetch(endpoint.url)
+      if (!response.ok) {
+        throw new Error(`获取${source}数据失败: ${response.status}`)
       }
-    })
-  },
 
-  // 按来源分类数据
-  categorizeItems(items) {
-    const categorized = {
-      linuxdo: [],
-      zhihu: [],
-      juejin: [],
-      baidu: [],
-      douyin: []
+      const data = await response.json()
+      return endpoint.transform(data)
+    } catch (error) {
+      console.error(`获取${source}数据失败:`, error)
+      return []
     }
-
-    items.forEach(item => {
-      // 根据URL判断来源
-      if (item.url.includes('linux.do')) {
-        categorized.linuxdo.push(item)
-      } else if (item.url.includes('zhihu.com')) {
-        categorized.zhihu.push(item)
-      } else if (item.url.includes('juejin.cn')) {
-        categorized.juejin.push(item)
-      } else if (item.url.includes('baidu.com')) {
-        categorized.baidu.push(item)
-      } else if (item.url.includes('douyin.com')) {
-        categorized.douyin.push(item)
-      }
-    })
-
-    return categorized
   },
 
-  // 获取热搜数据
+  // 获取所有热搜数据
   async getHotSearch() {
     try {
-      // 获取XML feed数据
-      const response = await fetch(FEED_URL, {
-        headers: {
-          'Accept': 'application/xml, text/xml, */*'
-        }
-      })
-      
-      if (!response.ok) {
-        throw new Error(`获取Feed数据失败: ${response.status}`)
+      const results = await Promise.allSettled(
+        Object.keys(API_ENDPOINTS).map(async source => {
+          const data = await this.fetchSourceData(source)
+          return [source, data]
+        })
+      )
+
+      const hotData = {
+        linuxdo: [],
+        zhihu: [],
+        baidu: [],
+        douyin: [],
+        bilibili: []
       }
 
-      const xmlText = await response.text()
-      const xmlDoc = this.parseXML(xmlText)
-      const items = this.extractItems(xmlDoc)
-      
-      // 按时间排序，最新的在前
-      items.sort((a, b) => b.date - a.date)
-      
-      // 分类数据
-      const categorizedData = this.categorizeItems(items)
-
-      // 限制每个分类的数量
-      Object.keys(categorizedData).forEach(key => {
-        categorizedData[key] = categorizedData[key].slice(0, 30)
+      results.forEach(result => {
+        if (result.status === 'fulfilled') {
+          const [source, data] = result.value
+          hotData[source] = data
+        }
       })
 
-      return categorizedData
+      return hotData
     } catch (error) {
       console.error('获取热搜数据失败:', error)
-      // 返回空数据而不是抛出错误，这样UI不会完全崩溃
       return {
         linuxdo: [],
         zhihu: [],
-        juejin: [],
         baidu: [],
-        douyin: []
+        douyin: [],
+        bilibili: []
       }
     }
   }
