@@ -1,5 +1,10 @@
 # HandsomeTab - 优雅的新标签页扩展
 
+> 👋 欢迎使用 HandsomeTab！这是一个精心打造的新标签页扩展，希望能为您的浏览体验带来一份优雅与便利。如果您觉得这个项目不错，欢迎给个 Star ⭐️
+
+- 🌐 官网：[https://www.lik.cc](https://www.lik.cc)
+- ✨ 在线演示：[https://tab.lik.cc](https://tab.lik.cc)
+
 HandsomeTab 是一个简洁优雅的浏览器新标签页扩展，让你的浏览器更加美观实用。
 
 ## 主要特性
@@ -128,5 +133,6 @@ Copyright (c) 2024 Handsome. All rights reserved.
 - GitHub: [HandsomeTab](https://github.com/acanyo/HandsomeTab)
 - 邮箱：30819792@qq.com
 - QQ：30819792
-- 官网：[Handsome](https://www.lik.cc)
+- 官网：[https://www.lik.cc](https://www.lik.cc)
+- 演示：[https://tab.lik.cc](https://tab.lik.cc)
 - 云服务：[雨云](https://www.rainyun.com/handsome_)
