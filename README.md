@@ -42,7 +42,23 @@ HandsomeTab 是一个简洁优雅的浏览器新标签页扩展，让你的浏�
 - Element Plus
 - Pinia
 - Vue Router
+### Nginx 配置
 
+```nginx
+    # LinuxDO API 代理
+    location /api/linuxdo/ {
+        proxy_pass https://linux.do/;
+        proxy_set_header Host linux.do;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header Accept 'application/json';
+        proxy_set_header User-Agent 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36';
+        proxy_ssl_server_name on;
+        proxy_ssl_protocols TLSv1.3 TLSv1.2 TLSv1.1 TLSv1;
+        rewrite ^/api/linuxdo/(.*) /$1 break;
+    }
+```
 ## 开发环境
 
 ```bash
